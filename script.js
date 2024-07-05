@@ -15,7 +15,6 @@ let favourites = {};
 function createDOMNodes(page) {
   const currentArray =
     page === "results" ? resultsArray : Object.values(favourites);
-  console.log("Current Array", page, currentArray);
   currentArray.forEach((item) => {
     const card = document.createElement("div");
     card.classList.add("card");
@@ -40,9 +39,13 @@ function createDOMNodes(page) {
 
     const saveText = document.createElement("p");
     saveText.classList.add("clickable");
-    saveText.textContent = "Add to Favourites";
-    saveText.setAttribute("onclick", `saveFavourites('${item.url}')`);
-
+    if (page === "results") {
+      saveText.textContent = "Add to Favourites";
+      saveText.setAttribute("onclick", `saveFavourites('${item.url}')`);
+    } else {
+      saveText.textContent = "Remove Favourites";
+      saveText.setAttribute("onclick", `removeFavourites('${item.url}')`);
+    }
     const cardText = document.createElement("p");
     cardText.classList.add("card-text");
     cardText.textContent = item.explanation;
@@ -69,8 +72,8 @@ function updateDOM(page) {
   // Get favourites from local storage
   if (localStorage.getItem("nasaFavourites")) {
     favourites = JSON.parse(localStorage.getItem("nasaFavourites"));
-    console.log("favourites from local storage: ", favourites);
   }
+  imagesContainer.textContent = "";
   createDOMNodes(page);
 }
 
@@ -98,6 +101,15 @@ function saveFavourites(itemUrl) {
       localStorage.setItem("nasaFavourites", JSON.stringify(favourites));
     }
   });
+}
+
+// Remove item from Favourites
+function removeFavourites(itemUrl) {
+  if (favourites[itemUrl]) {
+    delete favourites[itemUrl];
+    localStorage.setItem("nasaFavourites", JSON.stringify(favourites));
+    updateDOM("favourites");
+  }
 }
 
 // On load
